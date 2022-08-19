@@ -31,21 +31,8 @@ public class App {
         Set<String> anchors = new HashSet<>();
 
         try {
-            URL url = new URL(baseUrl + anchor);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-
             StringBuilder parsedHtml = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                parsedHtml.append(line);
-            }
-            reader.close();
-
-            String title = HtmlExtractor.extractTitle(parsedHtml.toString());
-
-            BufferedWriter writer = new BufferedWriter(new FileWriter(title + ".html"));
-            writer.write(parsedHtml.toString());
-            writer.close();
+            readAndWriteHtmlPage(baseUrl, anchor, parsedHtml);
 
             anchors = HtmlExtractor.getAnchorList(parsedHtml.toString());
 
@@ -70,10 +57,28 @@ public class App {
         }
     }
 
+    private static void readAndWriteHtmlPage(String baseUrl, String anchor, StringBuilder parsedHtml) throws IOException {
+        URL url = new URL(baseUrl + anchor);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            parsedHtml.append(line);
+        }
+        reader.close();
+
+        String title = HtmlExtractor.extractTitle(parsedHtml.toString());
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter(title + ".html"));
+        writer.write(parsedHtml.toString());
+        writer.close();
+    }
+
 
     private static void downloadAllFiles(String baseUrl, String anchor, Set<String> paths) {
+
         ExecutorService threadPool = Executors.newFixedThreadPool(paths.size());
         System.out.print("Downloading files from " + (anchor.equals("") ? "index" : anchor) + "... ");
+
         // parses the paths to be able to download the files as well as create its directories
         for (String path : paths) {
             int endIndex = path.length()-1;
@@ -94,17 +99,20 @@ public class App {
             FileDownloader fileDownloader = new FileDownloader(baseUrl, relativeFilePath, relativeDirPath);
             threadPool.execute(fileDownloader);
 
-            // waits until all files are downloaded to print confirmation
-            threadPool.shutdown();
-            try {
-                if (!threadPool.awaitTermination(30, TimeUnit.SECONDS)) {
-                    threadPool.shutdownNow();
-                }
-            } catch (InterruptedException ex) {
-                threadPool.shutdownNow();
-                Thread.currentThread().interrupt();
-            }
-            System.out.println("download complete!");
+            confirmCompletion(threadPool);
         }
+    }
+
+    private static void confirmCompletion(ExecutorService threadPool) {
+        threadPool.shutdown();
+        try {
+            if (!threadPool.awaitTermination(30, TimeUnit.SECONDS)) {
+                threadPool.shutdownNow();
+            }
+        } catch (InterruptedException ex) {
+            threadPool.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+        System.out.println("download complete!");
     }
 }
