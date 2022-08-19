@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class App {
@@ -77,6 +78,18 @@ public class App {
 
                 FileDownloader fileDownloader = new FileDownloader(baseUrl, relativeFilePath, relativeDirPath);
                 threadPool.execute(fileDownloader);
+
+                // waits until all files are downloaded to print confirmation
+                threadPool.shutdown();
+                try {
+                    if (!threadPool.awaitTermination(30, TimeUnit.SECONDS)) {
+                        threadPool.shutdownNow();
+                    }
+                } catch (InterruptedException ex) {
+                    threadPool.shutdownNow();
+                    Thread.currentThread().interrupt();
+                }
+                System.out.println("download complete!");
             }
 
         } catch (IOException e) {
