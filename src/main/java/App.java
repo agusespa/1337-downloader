@@ -14,7 +14,7 @@ public class App {
 
     public static void main(String[] args) {
 
-        System.out.println("Downloading files...");
+        System.out.println("Downloading files started...");
 
         String baseUrl = "https://tretton37.com/";
 
@@ -24,14 +24,13 @@ public class App {
         recursiveTraverse(baseUrl, anchor, visitedAnchors);
     }
 
-
     static void recursiveTraverse(String baseUrl, String anchor, Set<String> visitedAnchors) {
 
         visitedAnchors.add(anchor);
         Set<String> anchors = new HashSet<>();
 
         try {
-            String parsedHtml = readAndWriteHtmlPage(baseUrl, anchor);
+            String parsedHtml = readAndWriteHtml(baseUrl, anchor);
 
             anchors = HtmlExtractor.getAnchorList(parsedHtml);
 
@@ -43,7 +42,40 @@ public class App {
             Pattern srcPattern = Pattern.compile("src=" + regex);
             paths.addAll(HtmlExtractor.getPathList(srcPattern, parsedHtml));
 
-            downloadAllFiles(baseUrl, anchor, paths);
+            ExecutorService threadPool = Executors.newFixedThreadPool(paths.size());
+            System.out.print("Downloading files from " + (anchor.equals("") ? "index" : anchor) + "... ");
+            // parses the paths to be able to download the files as well as create its directories
+            for (String path : paths) {
+                int endIndex = path.length()-1;
+
+                // finds index to remove filename to create directory
+                for (int i = endIndex; i > 0; i--) {
+                    if (path.charAt(i) == '/') {
+                        endIndex = i;
+                        break;
+                    }
+                }
+
+                int startIndex = path.charAt(0) == '/' ? 1 : 0; // handles parsing of both absolute and relative paths
+
+                String relativeDirPath = path.substring(startIndex, endIndex);
+                String relativeFilePath = path.substring(startIndex);
+
+                FileDownloader fileDownloader = new FileDownloader(baseUrl, relativeFilePath, relativeDirPath);
+                threadPool.execute(fileDownloader);
+            }
+
+            // waits until all files are downloaded to print confirmation
+            threadPool.shutdown();
+            try {
+                if (!threadPool.awaitTermination(30, TimeUnit.SECONDS)) {
+                    threadPool.shutdownNow();
+                }
+            } catch (InterruptedException ex) {
+                threadPool.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+            System.out.println("download complete!");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -56,12 +88,11 @@ public class App {
         }
     }
 
-    private static String readAndWriteHtmlPage(String baseUrl, String anchor) throws IOException {
+    private static String readAndWriteHtml(String baseUrl, String anchor) throws IOException {
         URL url = new URL(baseUrl + anchor);
         BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
 
         StringBuilder htmlString = new StringBuilder();
-
         String line;
         while ((line = reader.readLine()) != null) {
             htmlString.append(line);
@@ -75,48 +106,5 @@ public class App {
         writer.close();
 
         return htmlString.toString();
-    }
-
-
-    private static void downloadAllFiles(String baseUrl, String anchor, Set<String> paths) {
-
-        ExecutorService threadPool = Executors.newFixedThreadPool(paths.size());
-        System.out.print("Downloading files from " + (anchor.equals("") ? "index" : anchor) + "... ");
-
-        // parses the paths to be able to download the files as well as create its directories
-        for (String path : paths) {
-            int endIndex = path.length()-1;
-
-            // finds index to remove filename to create directory
-            for (int i = endIndex; i > 0; i--) {
-                if (path.charAt(i) == '/') {
-                    endIndex = i;
-                    break;
-                }
-            }
-
-            int startIndex = path.charAt(0) == '/' ? 1 : 0; // handles parsing of both absolute and relative paths
-
-            String relativeDirPath = path.substring(startIndex, endIndex);
-            String relativeFilePath = path.substring(startIndex);
-
-            FileDownloader fileDownloader = new FileDownloader(baseUrl, relativeFilePath, relativeDirPath);
-            threadPool.execute(fileDownloader);
-
-            confirmCompletion(threadPool);
-        }
-    }
-
-    private static void confirmCompletion(ExecutorService threadPool) {
-        threadPool.shutdown();
-        try {
-            if (!threadPool.awaitTermination(30, TimeUnit.SECONDS)) {
-                threadPool.shutdownNow();
-            }
-        } catch (InterruptedException ex) {
-            threadPool.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-        System.out.println("download complete!");
     }
 }
