@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class FileDownloader {
+public class FileDownloader implements Runnable {
 
     private String baseUrl;
 
@@ -47,7 +47,6 @@ public class FileDownloader {
         this.dirPath = dirPath;
     }
 
-
     void downloadFile() {
         try {
             URL targetUrl = new URL(baseUrl + filePath);
@@ -68,5 +67,11 @@ public class FileDownloader {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    @Override
+    public void run() {
+        makeDirs();
+        downloadFile();
     }
 }
