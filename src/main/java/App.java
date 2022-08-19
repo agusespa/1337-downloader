@@ -31,18 +31,17 @@ public class App {
         Set<String> anchors = new HashSet<>();
 
         try {
-            StringBuilder parsedHtml = new StringBuilder();
-            readAndWriteHtmlPage(baseUrl, anchor, parsedHtml);
+            String parsedHtml = readAndWriteHtmlPage(baseUrl, anchor);
 
-            anchors = HtmlExtractor.getAnchorList(parsedHtml.toString());
+            anchors = HtmlExtractor.getAnchorList(parsedHtml);
 
             // extracts the file's paths in the html according to regexes
             Set<String> paths = new HashSet<>();
             String regex = "\"[0-9a-zA-Z/_%\\-.]*\"";
             Pattern hrefPattern = Pattern.compile("href=" + regex);
-            paths.addAll(HtmlExtractor.getPathList(hrefPattern, parsedHtml.toString()));
+            paths.addAll(HtmlExtractor.getPathList(hrefPattern, parsedHtml));
             Pattern srcPattern = Pattern.compile("src=" + regex);
-            paths.addAll(HtmlExtractor.getPathList(srcPattern, parsedHtml.toString()));
+            paths.addAll(HtmlExtractor.getPathList(srcPattern, parsedHtml));
 
             downloadAllFiles(baseUrl, anchor, paths);
 
@@ -57,20 +56,25 @@ public class App {
         }
     }
 
-    private static void readAndWriteHtmlPage(String baseUrl, String anchor, StringBuilder parsedHtml) throws IOException {
+    private static String readAndWriteHtmlPage(String baseUrl, String anchor) throws IOException {
         URL url = new URL(baseUrl + anchor);
         BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+
+        StringBuilder htmlString = new StringBuilder();
+
         String line;
         while ((line = reader.readLine()) != null) {
-            parsedHtml.append(line);
+            htmlString.append(line);
         }
         reader.close();
 
-        String title = HtmlExtractor.extractTitle(parsedHtml.toString());
+        String title = HtmlExtractor.extractTitle(htmlString.toString());
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(title + ".html"));
-        writer.write(parsedHtml.toString());
+        writer.write(htmlString.toString());
         writer.close();
+
+        return htmlString.toString();
     }
 
 
