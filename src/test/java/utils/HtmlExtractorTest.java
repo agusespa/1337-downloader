@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -24,6 +25,28 @@ public class HtmlExtractorTest {
         expected.add("who-we-are");
 
         Set<String> returned = HtmlExtractor.getAnchorList(htmlSample);
+
+        assertEquals(expected, returned);
+    }
+
+    @Test
+    public void shouldExtractHrefs() {
+        Set<String> expected = new HashSet<>();
+        expected.add("/assets/i/join.jpg");
+
+        Pattern hrefPattern = Pattern.compile("href=" + regex);
+        Set<String> returned = HtmlExtractor.getPathList(hrefPattern, htmlSample);
+
+        assertEquals(expected, returned);
+    }
+
+    @Test
+    public void shouldExtractSrcs() {
+        Set<String> expected = new HashSet<>();
+        expected.add("/assets/i/_tretton37_slogan_white.svg");
+
+        Pattern srcPattern = Pattern.compile("src=" + regex);
+        Set<String> returned = HtmlExtractor.getPathList(srcPattern, htmlSample);
 
         assertEquals(expected, returned);
     }
