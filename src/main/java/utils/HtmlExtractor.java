@@ -37,6 +37,24 @@ public class HtmlExtractor {
         return pathList;
     }
 
+    public static Set<String> getPathList(Pattern regex, String html) {
+        Set<String> pathList = new HashSet<>();
+        List<String> links = extractLinks(regex, html);
+
+        for (String s : links) {
+            if (s.length() < 10 || !s.contains(".")) continue;
+            int startIndex = 0;
+            for (int i = startIndex; i < s.length(); i++) {
+                if (s.charAt(i) == '"') {
+                    startIndex = i + 1;
+                    break;
+                }
+            }
+            pathList.add(s.substring(startIndex, s.length() - 1));
+        }
+        return pathList;
+    }
+
     private static List<String> extractLinks(Pattern regex, String html) {
         List<String> matchList = new ArrayList<>();
 
