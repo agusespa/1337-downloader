@@ -20,7 +20,7 @@ public class App {
 
         Set<String> visitedAnchors = new HashSet<>();
 
-        String anchor = ""; // home page
+        String anchor = ""; // starting at the home page
         recursiveTraverse(baseUrl, anchor, visitedAnchors);
     }
 
@@ -57,9 +57,9 @@ public class App {
 
     private static void downloadAllFiles(String baseUrl, String anchor, Set<String> paths) {
         ExecutorService threadPool = Executors.newFixedThreadPool(paths.size());
-        System.out.print("Downloading files from " + (anchor.equals("") ? "index" : anchor) + "... ");
+        System.out.print("Downloading " + paths.size() + " files from " + (anchor.equals("") ? "index" : anchor));
 
-        // downloads the files as well as create its directories
+        // downloads each file asynchronously as well as creates its directories
         for (String path : paths) {
             int startIndex = path.charAt(0) == '/' ? 1 : 0; // handles parsing of both absolute and relative paths
             String relativeFilePath = path.substring(startIndex);

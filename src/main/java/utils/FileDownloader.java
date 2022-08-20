@@ -44,6 +44,7 @@ public class FileDownloader implements Runnable {
             outputStream.getChannel().transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
             outputStream.close();
             readableByteChannel.close();
+            System.out.print(".");
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
