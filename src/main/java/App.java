@@ -42,7 +42,7 @@ public class App {
             Pattern srcPattern = Pattern.compile("src=" + regex);
             paths.addAll(HtmlExtractor.getFilePathList(srcPattern, parsedHtml));
 
-            downloadAll(baseUrl, anchor, paths);
+            downloadAllFiles(baseUrl, anchor, paths);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -55,27 +55,16 @@ public class App {
         }
     }
 
-    private static void downloadAll(String baseUrl, String anchor, Set<String> paths) {
+    private static void downloadAllFiles(String baseUrl, String anchor, Set<String> paths) {
         ExecutorService threadPool = Executors.newFixedThreadPool(paths.size());
         System.out.print("Downloading files from " + (anchor.equals("") ? "index" : anchor) + "... ");
-        // parses the paths to be able to download the files as well as create its directories
+
+        // downloads the files as well as create its directories
         for (String path : paths) {
-            int endIndex = path.length()-1;
-
-            // finds index to remove filename to create directory
-            for (int i = endIndex; i > 0; i--) {
-                if (path.charAt(i) == '/') {
-                    endIndex = i;
-                    break;
-                }
-            }
-
             int startIndex = path.charAt(0) == '/' ? 1 : 0; // handles parsing of both absolute and relative paths
-
-            String relativeDirPath = path.substring(startIndex, endIndex);
             String relativeFilePath = path.substring(startIndex);
 
-            FileDownloader fileDownloader = new FileDownloader(baseUrl, relativeFilePath, relativeDirPath);
+            FileDownloader fileDownloader = new FileDownloader(baseUrl, relativeFilePath);
             threadPool.execute(fileDownloader);
         }
 

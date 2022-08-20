@@ -15,12 +15,9 @@ public class FileDownloader implements Runnable {
 
     private String filePath;
 
-    private String dirPath;
-
-    public FileDownloader(String baseUrl, String filePath, String dirPath) {
+    public FileDownloader(String baseUrl, String filePath) {
         this.baseUrl = baseUrl;
         this.filePath = filePath;
-        this.dirPath = dirPath;
     }
 
     public String getBaseUrl() {
@@ -39,14 +36,6 @@ public class FileDownloader implements Runnable {
         this.filePath = filePath;
     }
 
-    public String getDirPath() {
-        return dirPath;
-    }
-
-    public void setDirPath(String dirPath) {
-        this.dirPath = dirPath;
-    }
-
     void downloadFile() {
         try {
             URL targetUrl = new URL(baseUrl + filePath);
@@ -61,14 +50,32 @@ public class FileDownloader implements Runnable {
     }
 
     void makeDirs() {
-        Path newDirectoryPath = Paths.get(dirPath);
+        String directory = getDirectoryString(filePath);
 
+        if (!directory.isEmpty()) { // handles edge case of files at root directory
+            Path dirPath = Paths.get(directory);
             try {
-                Files.createDirectories(newDirectoryPath);
+                Files.createDirectories(dirPath);
             } catch (IOException e) {
-                System.out.print("Directory error");
                 System.out.println(e.getMessage());
             }
+        }
+    }
+
+    String getDirectoryString(String filePath) {
+        if (!filePath.contains("/")) return "";
+
+        int endIndex = filePath.length()-1;
+
+        // finds index to remove filename from path to create directory
+        for (int i = endIndex; i > 0; i--) {
+            if (filePath.charAt(i) == '/') {
+                endIndex = i;
+                break;
+            }
+        }
+
+        return filePath.substring(0, endIndex);
     }
 
     @Override
