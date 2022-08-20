@@ -46,7 +46,7 @@ public class FileDownloader implements Runnable {
             readableByteChannel.close();
             System.out.print(".");
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.out.print(" [ERROR: " + e.getMessage() + "] ");
         }
     }
 
@@ -58,7 +58,6 @@ public class FileDownloader implements Runnable {
             try {
                 Files.createDirectories(dirPath);
             } catch (IOException e) {
-                System.out.println(e.getMessage());
             }
         }
     }
