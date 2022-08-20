@@ -40,13 +40,9 @@ public class App {
 
             anchors = HtmlExtractor.getAnchorList(htmlString);
 
-            // extracts the file's paths in the html
             Set<String> paths = new HashSet<>();
-            String regex = "\"[0-9a-zA-Z/_%\\-.]*\"";
-            Pattern hrefPattern = Pattern.compile("href=" + regex);
-            paths.addAll(HtmlExtractor.getFilePathList(hrefPattern, htmlString));
-            Pattern srcPattern = Pattern.compile("src=" + regex);
-            paths.addAll(HtmlExtractor.getFilePathList(srcPattern, htmlString));
+            paths.addAll(HtmlExtractor.getFilePathList("href=", htmlString));
+            paths.addAll(HtmlExtractor.getFilePathList("src=", htmlString));
 
             downloadAllFiles(baseUrl, anchor, paths, downloadedFiles);
 

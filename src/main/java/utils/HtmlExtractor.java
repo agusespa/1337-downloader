@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 
 public class HtmlExtractor {
 
+    private static final String pathRegex = "\"[0-9a-zA-Z/_%\\-.]*\"";
+
     public static String extractTitle(String html) {
         List<String> matchList = new ArrayList<>();
 
@@ -37,9 +39,10 @@ public class HtmlExtractor {
         return pathList;
     }
 
-    public static Set<String> getFilePathList(Pattern regex, String html) {
+    public static Set<String> getFilePathList(String htmlElement, String html) {
         Set<String> pathList = new HashSet<>();
-        List<String> links = extractLinks(regex, html);
+        Pattern pattern = Pattern.compile(htmlElement + pathRegex);
+        List<String> links = extractLinks(pattern, html);
 
         for (String s : links) {
             if (s.length() < 10 || !s.contains(".")) continue; // filters out non-file paths
