@@ -35,19 +35,18 @@ public class App {
 
         Set<String> anchors = new HashSet<>();
 
-
         try {
-            String parsedHtml = readAndWriteHtml(baseUrl, anchor);
+            String htmlString = readAndWriteHtml(baseUrl, anchor);
 
-            anchors = HtmlExtractor.getAnchorList(parsedHtml);
+            anchors = HtmlExtractor.getAnchorList(htmlString);
 
-            // extracts the file's paths in the html according to regexes
+            // extracts the file's paths in the html
             Set<String> paths = new HashSet<>();
             String regex = "\"[0-9a-zA-Z/_%\\-.]*\"";
             Pattern hrefPattern = Pattern.compile("href=" + regex);
-            paths.addAll(HtmlExtractor.getFilePathList(hrefPattern, parsedHtml));
+            paths.addAll(HtmlExtractor.getFilePathList(hrefPattern, htmlString));
             Pattern srcPattern = Pattern.compile("src=" + regex);
-            paths.addAll(HtmlExtractor.getFilePathList(srcPattern, parsedHtml));
+            paths.addAll(HtmlExtractor.getFilePathList(srcPattern, htmlString));
 
             downloadAllFiles(baseUrl, anchor, paths, downloadedFiles);
 
@@ -64,6 +63,7 @@ public class App {
 
     private static void downloadAllFiles(String baseUrl, String anchor, Set<String> paths, Set<String> downloadedFiles) {
         ExecutorService threadPool = Executors.newFixedThreadPool(paths.size());
+
         System.out.print("Downloading files from " + (anchor.equals("") ? "index" : anchor));
 
         // downloads each file asynchronously as well as creates its directories
