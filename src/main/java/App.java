@@ -20,17 +20,21 @@ public class App {
 
         Set<String> visitedAnchors = new HashSet<>();
 
+        Set<String> downloadedFiles = new HashSet<>();
+
         String anchor = ""; // starting at the home page
-        recursiveTraverse(baseUrl, anchor, visitedAnchors);
+        recursiveTraverse(baseUrl, anchor, visitedAnchors, downloadedFiles);
+
+        System.out.println("********");
+        System.out.println("Download of tretton37.com finished successfully!");
     }
 
-    static void recursiveTraverse(String baseUrl, String anchor, Set<String> visitedAnchors) {
+    static void recursiveTraverse(String baseUrl, String anchor, Set<String> visitedAnchors, Set<String> downloadedFiles) {
 
         visitedAnchors.add(anchor);
-        
+
         Set<String> anchors = new HashSet<>();
 
-        Set<String> downloadedFiles = new HashSet<>();
 
         try {
             String parsedHtml = readAndWriteHtml(baseUrl, anchor);
@@ -53,14 +57,14 @@ public class App {
 
         for (String a : anchors) {
             if (!visitedAnchors.contains(a)) {
-                recursiveTraverse(baseUrl, a, visitedAnchors);
+                recursiveTraverse(baseUrl, a, visitedAnchors, downloadedFiles);
             }
         }
     }
 
     private static void downloadAllFiles(String baseUrl, String anchor, Set<String> paths, Set<String> downloadedFiles) {
         ExecutorService threadPool = Executors.newFixedThreadPool(paths.size());
-        System.out.print("Downloading " + paths.size() + " files from " + (anchor.equals("") ? "index" : anchor));
+        System.out.print("Downloading files from " + (anchor.equals("") ? "index" : anchor));
 
         // downloads each file asynchronously as well as creates its directories
         for (String path : paths) {
@@ -84,7 +88,7 @@ public class App {
             threadPool.shutdownNow();
             Thread.currentThread().interrupt();
         }
-        System.out.println("download complete!");
+        System.out.println(" download complete!");
     }
 
     private static String readAndWriteHtml(String baseUrl, String anchor) throws IOException {
