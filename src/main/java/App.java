@@ -27,7 +27,10 @@ public class App {
     static void recursiveTraverse(String baseUrl, String anchor, Set<String> visitedAnchors) {
 
         visitedAnchors.add(anchor);
+        
         Set<String> anchors = new HashSet<>();
+
+        Set<String> downloadedFiles = new HashSet<>();
 
         try {
             String parsedHtml = readAndWriteHtml(baseUrl, anchor);
@@ -42,7 +45,7 @@ public class App {
             Pattern srcPattern = Pattern.compile("src=" + regex);
             paths.addAll(HtmlExtractor.getFilePathList(srcPattern, parsedHtml));
 
-            downloadAllFiles(baseUrl, anchor, paths);
+            downloadAllFiles(baseUrl, anchor, paths, downloadedFiles);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -55,17 +58,20 @@ public class App {
         }
     }
 
-    private static void downloadAllFiles(String baseUrl, String anchor, Set<String> paths) {
+    private static void downloadAllFiles(String baseUrl, String anchor, Set<String> paths, Set<String> downloadedFiles) {
         ExecutorService threadPool = Executors.newFixedThreadPool(paths.size());
         System.out.print("Downloading " + paths.size() + " files from " + (anchor.equals("") ? "index" : anchor));
 
         // downloads each file asynchronously as well as creates its directories
         for (String path : paths) {
+            if (downloadedFiles.contains(path)) continue;
             int startIndex = path.charAt(0) == '/' ? 1 : 0; // handles parsing of both absolute and relative paths
             String relativeFilePath = path.substring(startIndex);
 
             FileDownloader fileDownloader = new FileDownloader(baseUrl, relativeFilePath);
             threadPool.execute(fileDownloader);
+
+            downloadedFiles.add(path);
         }
 
         // waits until all files are downloaded to print confirmation
