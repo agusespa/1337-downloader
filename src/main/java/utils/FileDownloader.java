@@ -63,13 +63,12 @@ public class FileDownloader implements Runnable {
     void makeDirs() {
         Path newDirectoryPath = Paths.get(dirPath);
 
-        if (!dirPath.contains(".")) { // handles case of files at root dir (shouldn't create dir)
             try {
                 Files.createDirectories(newDirectoryPath);
             } catch (IOException e) {
+                System.out.print("Directory error");
                 System.out.println(e.getMessage());
             }
-        }
     }
 
     @Override

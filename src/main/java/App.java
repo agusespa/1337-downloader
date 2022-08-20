@@ -38,9 +38,9 @@ public class App {
             Set<String> paths = new HashSet<>();
             String regex = "\"[0-9a-zA-Z/_%\\-.]*\"";
             Pattern hrefPattern = Pattern.compile("href=" + regex);
-            paths.addAll(HtmlExtractor.getPathList(hrefPattern, parsedHtml));
+            paths.addAll(HtmlExtractor.getFilePathList(hrefPattern, parsedHtml));
             Pattern srcPattern = Pattern.compile("src=" + regex);
-            paths.addAll(HtmlExtractor.getPathList(srcPattern, parsedHtml));
+            paths.addAll(HtmlExtractor.getFilePathList(srcPattern, parsedHtml));
 
             downloadAll(baseUrl, anchor, paths);
 

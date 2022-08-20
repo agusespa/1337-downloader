@@ -35,7 +35,7 @@ public class HtmlExtractorTest {
         expected.add("/assets/i/join.jpg");
 
         Pattern hrefPattern = Pattern.compile("href=" + regex);
-        Set<String> returned = HtmlExtractor.getPathList(hrefPattern, htmlSample);
+        Set<String> returned = HtmlExtractor.getFilePathList(hrefPattern, htmlSample);
 
         assertEquals(expected, returned);
     }
@@ -46,7 +46,7 @@ public class HtmlExtractorTest {
         expected.add("/assets/i/_tretton37_slogan_white.svg");
 
         Pattern srcPattern = Pattern.compile("src=" + regex);
-        Set<String> returned = HtmlExtractor.getPathList(srcPattern, htmlSample);
+        Set<String> returned = HtmlExtractor.getFilePathList(srcPattern, htmlSample);
 
         assertEquals(expected, returned);
     }

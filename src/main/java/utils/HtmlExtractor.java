@@ -19,7 +19,7 @@ public class HtmlExtractor {
         if (matcher.find())
             rawTitle.append(matcher.group());
 
-        return rawTitle.substring(7, rawTitle.length() - 8);
+        return rawTitle.substring(7, rawTitle.length() - 8); // removes html tags
     }
 
     public static Set<String> getAnchorList(String html) {
@@ -30,19 +30,21 @@ public class HtmlExtractor {
         for (String s : links) {
             int startIndex = 7; // removes the html tag
             String anchor = s.substring(startIndex, s.length() -1);
-            if (!anchor.contains("."))
+            if (!anchor.contains(".")) // filters out file paths
                 pathList.add(anchor);
         }
 
         return pathList;
     }
 
-    public static Set<String> getPathList(Pattern regex, String html) {
+    public static Set<String> getFilePathList(Pattern regex, String html) {
         Set<String> pathList = new HashSet<>();
         List<String> links = extractLinks(regex, html);
 
         for (String s : links) {
-            if (s.length() < 10 || !s.contains(".")) continue;
+            if (s.length() < 10 || !s.contains(".")) continue; // filters out non-file paths
+
+            // removes html tag
             int startIndex = 0;
             for (int i = startIndex; i < s.length(); i++) {
                 if (s.charAt(i) == '"') {
@@ -50,6 +52,7 @@ public class HtmlExtractor {
                     break;
                 }
             }
+
             pathList.add(s.substring(startIndex, s.length() - 1));
         }
         return pathList;
