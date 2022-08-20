@@ -54,6 +54,7 @@ public class App {
             e.printStackTrace();
         }
 
+        // conditional recursive call
         for (String a : anchors) {
             if (!visitedAnchors.contains(a)) {
                 recursiveTraverse(baseUrl, a, visitedAnchors, downloadedFiles);
