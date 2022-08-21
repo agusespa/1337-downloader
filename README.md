@@ -3,11 +3,12 @@ A CLI app to automatically download all the html code and its resources.
 The file structure will be created relative to the directory where you execute the app and the structure will mirror the directory tree of the website.  
 The app prints information of the execution process, but you should expect a large number of files to be created.
 ### Build and Run
-Execute Maven package command at the project's root directory:
+To use the app, you first have to clone or download this repository to your machine.  
+To compile it, execute Maven package command at the project's root directory:
 ``` Bash
 $ mvn package
 ```
-An executable .jar file will be created at the project's target directory.
+An executable .jar file will be created at the project's target directory. That file contains the whole app so you can move it to any directory you prefer.  
 To run the app, execute the following command at the directory where the .jar is located:
 ``` Bash
 $ java -jar 1337-downloader-1.jar
@@ -27,12 +28,12 @@ Each web page contains a large number of files that can be downloaded asynchrono
 * Maven plugins for test execution and packaging all classes in a single executable JAR.
 * JUnit for testing.
 ### Testing
-I've included minimal unit testing to ensure proper execution of vital actions, like parsing the links and creating the directories.
+I've included minimal unit testing to ensure proper execution of vital actions, like parsing the links and creating the directories, which would help when coding more complex features.
 To run the tests, execute Maven's test command at the project's root directory:
 ``` Bash
 $ mvn clean test
 ```
-### Shortcuts
+### Shortcuts taken
 Due to the time constraint of 3-6 hr, I've left these unresolved:
 #### Known issues
 * It doesn't handle files from external resources like Cloudflare
