@@ -18,10 +18,10 @@ The files will be downloaded at the jar's root directory.
 The app combines aspects of scripting programming with some OOP principles.  
 I wanted to have a nimble working program in a short development time but also sufficient granularity of the methods in order to have them tested and achieve a more robust and maintainable app where features could be added easily.
 #### Execution flow
-1. Read the contents of the web page
-2. Extract the links to other pages and the file resources paths
+1. Read the contents of the web page 
+2. Extract the links to other pages and the file resources paths (implemented sets to avoid visiting the same pages and downloading files more than once)
 3. Download those files
-4. Recursively call to the links extracted
+4. Recursively call to the links extracted if they haven't been visited before
 #### Concurrency
 Each web page contains a large number of files that can be downloaded asynchronously, so I've gathered each file download thread in a pool to increase performance.
 ### External libraries used
